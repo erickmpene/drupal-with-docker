@@ -9,11 +9,20 @@ services:
       - ./nginx-config:/etc/nginx/conf.d
       - drupal:/var/www/html
       - certbot-etc:/etc/letsencrypt
-
     depends_on:
       - drupal
     networks:
       - front
+
+  certbot:
+      depends_on:
+        - nginx
+      image: certbot/certbot
+      container_name: certbot
+      volumes:
+        - certbot-etc:/etc/letsencrypt
+        - drupal:/var/www/html
+      command: certonly --webroot --webroot-path=/var/www/html --email mail.telechar@gmail.com --agree-tos --no-eff-email --force-renewal -d your_domain -d www.your_domain
 
   drupal:
     image: drupal:latest
