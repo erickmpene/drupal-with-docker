@@ -1,0 +1,57 @@
+version: '3'
+services:
+  nginx:
+    image: nginx:latest
+    container_name: my-nginx-container
+    ports:
+      - "80:80"
+    volumes:
+      - ./nginx-config:/etc/nginx/conf.d
+      - drupal:/var/www/html
+      - certbot-etc:/etc/letsencrypt
+
+    depends_on:
+      - drupal
+    networks:
+      - front
+
+  drupal:
+    image: drupal:latest
+    container_name: my-drupal-container
+    environment:
+      - MYSQL_DATABASE=mydrupaldb
+      - MYSQL_USER=mydrupaluser
+      - MYSQL_PASSWORD=mydrupalpassword
+      - MYSQL_HOST=mysql
+    ports:
+      - "8080:80"
+    volumes:
+      - drupal:/var/www/html
+    networks:
+      - front
+      - back
+
+    depends_on:
+      - mysql
+
+  mysql:
+    image: mysql:latest
+    container_name: my-mysql-container
+    networks:
+      - back
+    environment:
+      - MYSQL_ROOT_PASSWORD=myrootpassword
+      - MYSQL_DATABASE=mydrupaldb
+      - MYSQL_USER=mydrupaluser
+      - MYSQL_PASSWORD=mydrupalpassword
+    volumes:
+      - database:/var/lib/mysql
+
+networks:
+  back:
+  front:
+
+volumes:
+  database:
+  drupal:
+  certbot-etc:
