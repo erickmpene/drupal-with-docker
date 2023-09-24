@@ -1,14 +1,16 @@
 version: '3'
 services:
-  nginx:
+  webserver:
     image: nginx:latest
-    container_name: my-nginx-container
+    container_name: webserver
     ports:
-      - "80:80"
+      - 80:80
+      # - 443:443
     volumes:
       - ./nginx-config:/etc/nginx/conf.d
       - drupal:/var/www/html
       - certbot-etc:/etc/letsencrypt
+      # - conf_nginx:/etc/nginx/conf.d 
     depends_on:
       - drupal
     networks:
@@ -16,17 +18,19 @@ services:
 
   certbot:
       depends_on:
-        - nginx
+        - webserver
       image: certbot/certbot
       container_name: certbot
       volumes:
         - certbot-etc:/etc/letsencrypt
         - drupal:/var/www/html
-      command: certonly --webroot --webroot-path=/var/www/html --email mail.telechar@gmail.com --agree-tos --no-eff-email --force-renewal -d your_domain -d www.your_domain
+        - var-log:/var/log/letsencrypt
+      command: certonly --webroot --webroot-path=/var/www/html --email mail.telechar@gmail.com --agree-tos --no-eff-email --staging -d drupal.notylus.com
+      # command: certonly --webroot --webroot-path=/var/www/html --email mail.telechar@gmail.com --agree-tos --no-eff-email --force-renewal -d drupal.notylus.com
 
   drupal:
     image: drupal:latest
-    container_name: my-drupal-container
+    container_name: drupal 
     environment:
       - MYSQL_DATABASE=mydrupaldb
       - MYSQL_USER=mydrupaluser
@@ -45,7 +49,7 @@ services:
 
   mysql:
     image: mysql:latest
-    container_name: my-mysql-container
+    container_name: mysql 
     networks:
       - back
     environment:
@@ -64,3 +68,5 @@ volumes:
   database:
   drupal:
   certbot-etc:
+  var-log:
+
