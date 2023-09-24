@@ -1,3 +1,5 @@
+![Capture d’écran 2023-09-24 210610](https://github.com/erickmpene/drupal-with-docker/assets/138575584/05726430-5d84-4329-a1e1-6750b789d085)
+
 ## How To Install Drupal with Docker Compose
 Drupal is a content management system (CMS) written in PHP and distributed under the open-source GNU General Public License. 
 
