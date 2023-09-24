@@ -1,62 +1,39 @@
 version: '3'
 services:
-  webserver:
+  front:
     image: nginx:latest
-    container_name: webserver
+    container_name: front
     ports:
       - 80:80
-      # - 443:443
+      - 443:443
     volumes:
       - ./nginx-config:/etc/nginx/conf.d
-      - drupal:/var/www/html
-      - certbot-etc:/etc/letsencrypt
-      # - conf_nginx:/etc/nginx/conf.d 
+      - certbot-etc:/etc/letsencrypt/live
+      - ./key:/etc/letsencrypt/live
     depends_on:
       - drupal
     networks:
       - front
 
-  certbot:
-      depends_on:
-        - webserver
-      image: certbot/certbot
-      container_name: certbot
-      volumes:
-        - certbot-etc:/etc/letsencrypt
-        - drupal:/var/www/html
-        - var-log:/var/log/letsencrypt
-      command: certonly --webroot --webroot-path=/var/www/html --email mail.telechar@gmail.com --agree-tos --no-eff-email --staging -d drupal.notylus.com
-      # command: certonly --webroot --webroot-path=/var/www/html --email mail.telechar@gmail.com --agree-tos --no-eff-email --force-renewal -d drupal.notylus.com
 
   drupal:
     image: drupal:latest
     container_name: drupal 
-    environment:
-      - MYSQL_DATABASE=mydrupaldb
-      - MYSQL_USER=mydrupaluser
-      - MYSQL_PASSWORD=mydrupalpassword
-      - MYSQL_HOST=mysql
-    ports:
-      - "8080:80"
     volumes:
       - drupal:/var/www/html
     networks:
       - front
       - back
-
     depends_on:
-      - mysql
+      - database
 
-  mysql:
+  database:
     image: mysql:latest
-    container_name: mysql 
+    container_name: database
     networks:
       - back
-    environment:
-      - MYSQL_ROOT_PASSWORD=myrootpassword
-      - MYSQL_DATABASE=mydrupaldb
-      - MYSQL_USER=mydrupaluser
-      - MYSQL_PASSWORD=mydrupalpassword
+    env_file:
+      - ./back/env_variable.env 
     volumes:
       - database:/var/lib/mysql
 
@@ -68,5 +45,5 @@ volumes:
   database:
   drupal:
   certbot-etc:
-  var-log:
+
 
